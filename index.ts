@@ -254,13 +254,14 @@ export default definePluginEntry({
 
       // 13. Return context for prepending
       return { prependContext: result };
-    });
+    }, { name: "rag-inject" });
 
     // ------------------------------------------------------------------
     // gateway_stop — cleanup hook
     // ------------------------------------------------------------------
     api.registerHook("gateway_stop", () => {
+      // hook name: rag-cleanup
       api.logger.debug("[shallow-thought] shutting down");
-    });
+    }, { name: "rag-cleanup" });
   },
 });
