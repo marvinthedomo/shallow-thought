@@ -130,7 +130,7 @@ export default definePluginEntry({
     // ------------------------------------------------------------------
     // before_prompt_build — RAG injection hook
     // ------------------------------------------------------------------
-    api.registerHook("before_prompt_build", async (ctx) => {
+    api.on("before_prompt_build", async (ctx) => {
       const t0 = Date.now();
 
       // 1. Extract agentId
@@ -157,7 +157,6 @@ export default definePluginEntry({
 
       // 4. Skip if disabled
       if (!profile.enabled) {
-        if (debug) api.logger.debug("[shallow-thought] profile disabled, skipping");
         return {};
       }
 
@@ -254,7 +253,7 @@ export default definePluginEntry({
 
       // 13. Return context for prepending
       return { prependContext: result };
-    }, { name: "rag-inject" });
+    });
 
     // ------------------------------------------------------------------
     // gateway_stop — cleanup hook
