@@ -1,0 +1,32 @@
+{
+  "id": "shallow-thought",
+  "name": "Shallow Thought",
+  "description": "Qdrant-backed RAG knowledge injection for OpenClaw agents",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "qdrant_url":            { "type": "string" },
+      "collection":            { "type": "string" },
+      "embedding_url":         { "type": "string" },
+      "embedding_model":       { "type": "string" },
+      "embedding_timeout_ms":  { "type": "integer", "minimum": 100 },
+      "qdrant_timeout_ms":     { "type": "integer", "minimum": 100 },
+      "profile_dir":           { "type": "string" },
+      "context_block_header":  { "type": "string" },
+      "fail_open":             { "type": "boolean" },
+      "debug_log":             { "type": "boolean" },
+      "defaults": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "top_k":              { "type": "integer", "minimum": 1, "maximum": 20 },
+          "max_tokens":         { "type": "integer", "minimum": 100 },
+          "min_embed_tokens":   { "type": "integer", "minimum": 1 },
+          "score_thresholds":   { "type": "object" },
+          "context_inference":  { "type": "boolean" }
+        }
+      }
+    }
+  }
+}
