@@ -103,6 +103,35 @@ describe("loadProfile", () => {
     expect(profile.top_k).toBe(DEFAULT_PROFILE.top_k);
   });
 
+  it("returns cached profile on second call (same file)", async () => {
+    const config = { ...BASE_CONFIG, profile_dir: tmpDir };
+    fs.writeFileSync(path.join(tmpDir, "marvin.json"), JSON.stringify({ top_k: 7 }));
+
+    const p1 = await loadProfile("marvin", config);
+    const p2 = await loadProfile("marvin", config);
+    expect(p1.top_k).toBe(7);
+    expect(p2.top_k).toBe(7);
+    // Same object reference — came from cache
+    expect(p1).toBe(p2);
+  });
+
+  it("re-reads when file mtime changes", async () => {
+    const config = { ...BASE_CONFIG, profile_dir: tmpDir };
+    const filePath = path.join(tmpDir, "marvin.json");
+
+    fs.writeFileSync(filePath, JSON.stringify({ top_k: 7 }));
+    const p1 = await loadProfile("marvin", config);
+    expect(p1.top_k).toBe(7);
+
+    // Wait for filesystem mtime resolution, then write new content
+    await new Promise((r) => setTimeout(r, 20));
+    fs.writeFileSync(filePath, JSON.stringify({ top_k: 9 }));
+
+    const p2 = await loadProfile("marvin", config);
+    expect(p2.top_k).toBe(9);
+    expect(p2).not.toBe(p1);
+  });
+
   it("loads keyword_map from profile", async () => {
     const config = { ...BASE_CONFIG, profile_dir: tmpDir };
     const partial = {
