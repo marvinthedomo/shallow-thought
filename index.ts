@@ -95,6 +95,9 @@ function extractLastUserMessage(messages: unknown): string {
 // ---------------------------------------------------------------------------
 
 export default definePluginEntry({
+  id: "shallow-thought",
+  name: "Shallow Thought",
+  description: "Qdrant-backed RAG knowledge injection for OpenClaw agents",
   configSchema: {
     type: "object",
     additionalProperties: false,
@@ -123,7 +126,7 @@ export default definePluginEntry({
     },
   },
 
-  setup(api) {
+  register(api) {
     // ------------------------------------------------------------------
     // before_prompt_build — RAG injection hook
     // ------------------------------------------------------------------
