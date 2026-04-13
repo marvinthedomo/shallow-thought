@@ -35,7 +35,9 @@ export function scoreThresholdFor(sourceType: string, thresholds: ScoreThreshold
 export function filterAndDedup(hits: QdrantResult[], profile: AgentProfile): QdrantResult[] {
   // Step 1: Score filter
   const filtered = hits.filter((hit) => {
-    const threshold = scoreThresholdFor(hit.payload.source_type, profile.score_thresholds);
+    // Support both "type" (current indexer) and "source_type" (spec / future indexer)
+    const sourceType = hit.payload.source_type ?? hit.payload.type ?? "unknown";
+    const threshold = scoreThresholdFor(sourceType, profile.score_thresholds);
     return hit.score >= threshold;
   });
 

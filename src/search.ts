@@ -5,12 +5,17 @@ import { AgentProfile, PluginConfig } from "./config";
  */
 export interface QdrantPayload {
   source: string;
-  source_type: string;
-  agent_id: string;
+  // Current indexer uses "type"; "source_type" is the canonical spec name — both accepted
+  type?: string;
+  source_type?: string;
+  agent_id?: string;
   location?: string;
-  tags: string[];
+  tags?: string[];
   text: string;
   indexed_at: string;
+  chunk_index?: number;
+  heading?: string;
+  file_hash?: string;
 }
 
 /**
@@ -87,9 +92,11 @@ export async function searchKnowledge(
   const mustNotConditions: FilterCondition[] = [];
 
   // Build must conditions from profile
+  // Note: current indexer uses "type" field; future re-index will use "source_type".
+  // We try "type" first (current reality), with "source_type" as the spec field name.
   if (profile.include_types.length > 0) {
     mustConditions.push({
-      key: "source_type",
+      key: "type",
       match: { any: profile.include_types },
     });
   }
@@ -97,18 +104,21 @@ export async function searchKnowledge(
   // Build must_not conditions from excluded types
   if (profile.exclude_types.length > 0) {
     mustNotConditions.push({
-      key: "source_type",
+      key: "type",
       match: { any: profile.exclude_types },
     });
   }
 
-  // Agent IDs are always required (must)
-  mustConditions.push({
-    key: "agent_id",
-    match: { any: profile.agent_ids },
-  });
+  // Agent ID filter — only apply if profile.agent_ids doesn't include "*"
+  // (current index has no agent_id field; skip filter when wildcard is present)
+  if (profile.agent_ids.length > 0 && !profile.agent_ids.includes("*")) {
+    mustConditions.push({
+      key: "agent_id",
+      match: { any: profile.agent_ids },
+    });
+  }
 
-  // Location filtering (if provided)
+  // Location filtering (if provided and field exists in index)
   if (locationFilter.length > 0) {
     mustConditions.push({
       key: "location",

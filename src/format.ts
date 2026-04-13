@@ -18,8 +18,9 @@ export function formatContextBlock(
   let chunksAdded = 0;
 
   for (const hit of hits) {
-    const { source, source_type, text } = hit.payload;
-    const attribution = `<!-- source: ${source} | score: ${hit.score.toFixed(2)} | type: ${source_type} -->`;
+    const { source, text } = hit.payload;
+    const sourceType = hit.payload.source_type ?? hit.payload.type ?? "unknown";
+    const attribution = `<!-- source: ${source} | score: ${hit.score.toFixed(2)} | type: ${sourceType} -->`;
     const attributionTokens = estimateTokens(attribution);
 
     const remaining = profile.max_tokens - accumulated;
