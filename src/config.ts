@@ -42,7 +42,17 @@ export interface PluginConfig {
   context_block_header: string;
   fail_open: boolean;
   debug_log: boolean;
+  /** Over-fetch multiplier: Qdrant limit = top_k * search_multiplier (before dedup). Default 5. */
+  search_multiplier: number;
   defaults: PluginConfigDefaults;
+}
+
+/** Expand leading ~ to HOME directory. path.join() does not expand tildes. */
+export function expandTilde(p: string): string {
+  if (p.startsWith("~/") || p === "~") {
+    return p.replace("~", process.env["HOME"] ?? "/tmp");
+  }
+  return p;
 }
 
 export const DEFAULT_PROFILE: AgentProfile = {

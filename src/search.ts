@@ -51,6 +51,7 @@ interface FilterCondition {
 interface QdrantSearchRequest {
   vector: number[];
   limit: number;
+  score_threshold?: number;
   with_payload: boolean;
   filter?: {
     must?: FilterCondition[];
@@ -142,10 +143,21 @@ export async function searchKnowledge(
     });
   }
 
+  // Compute the lowest score threshold across all configured types — use as Qdrant-side
+  // pre-filter to reduce payload. Client-side dedup.ts applies per-type thresholds after.
+  const thresholds = profile.score_thresholds;
+  const minThreshold = Object.values(thresholds)
+    .filter((v): v is number => typeof v === "number")
+    .reduce((min, v) => Math.min(min, v), thresholds.default ?? 0.5);
+
+  // Over-fetch multiplier: configurable, defaults to 5
+  const multiplier = config.search_multiplier ?? 5;
+
   // Build request body
   const requestBody: QdrantSearchRequest = {
     vector,
-    limit: profile.top_k * 3,
+    limit: profile.top_k * multiplier,
+    score_threshold: minThreshold,
     with_payload: true,
   };
 

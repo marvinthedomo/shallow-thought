@@ -3,6 +3,7 @@ import { join } from "node:path";
 import {
   mergeProfileWithDefaults,
   validateProfileSchema,
+  expandTilde,
 } from "./config.js";
 import type { AgentProfile, PluginConfig, PluginConfigDefaults } from "./config.js";
 
@@ -10,7 +11,7 @@ export async function loadProfile(
   agentId: string,
   config: Pick<PluginConfig, "profile_dir" | "defaults">
 ): Promise<AgentProfile> {
-  const filePath = join(config.profile_dir, `${agentId}.json`);
+  const filePath = join(expandTilde(config.profile_dir), `${agentId}.json`);
   // Gateway config defaults take precedence over hardcoded DEFAULT_PROFILE
   const gatewayDefaults: Partial<PluginConfigDefaults> = config.defaults;
 

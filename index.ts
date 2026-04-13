@@ -5,6 +5,7 @@
 
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 
+import { expandTilde } from "./src/config.js";
 import type { PluginConfig } from "./src/config.js";
 import { EmbedError, embedText, wordCount } from "./src/embed.js";
 import { loadProfile, inferLocationFilter } from "./src/scope.js";
@@ -28,6 +29,7 @@ function buildConfig(raw: Record<string, unknown>): PluginConfig {
     context_block_header: "## Retrieved Knowledge",
     fail_open: true,
     debug_log: false,
+    search_multiplier: 5,
     defaults: {
       top_k: 5,
       max_tokens: 2000,
