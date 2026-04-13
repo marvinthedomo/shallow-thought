@@ -1,0 +1,17 @@
+{
+  "enabled": true,
+  "top_k": 4,
+  "max_tokens": 1000,
+  "min_embed_tokens": 5,
+  "include_types": ["memory", "experience"],
+  "exclude_types": ["ha_entity", "ha_automation"],
+  "locations": [],
+  "agent_ids": ["*", "eddie"],
+  "tags_require": [],
+  "tags_exclude": [],
+  "score_thresholds": {
+    "default": 0.55
+  },
+  "keyword_map": {},
+  "context_inference": false
+}

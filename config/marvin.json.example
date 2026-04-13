@@ -1,0 +1,24 @@
+{
+  "enabled": true,
+  "top_k": 6,
+  "max_tokens": 2000,
+  "min_embed_tokens": 5,
+  "include_types": ["memory", "ha_entity", "ha_automation", "experience", "skill"],
+  "exclude_types": [],
+  "locations": [],
+  "agent_ids": ["*", "marvin"],
+  "tags_require": [],
+  "tags_exclude": [],
+  "score_thresholds": {
+    "default": 0.50,
+    "ha_entity": 0.40,
+    "ha_automation": 0.42,
+    "memory": 0.52,
+    "experience": 0.52
+  },
+  "keyword_map": {
+    "yarychiv": ["yarychiv", "яричів", "яричеві", "яричівський", "village", "село"],
+    "pechersk": ["pechersk", "печерськ", "kyiv", "київ", "pecherska"]
+  },
+  "context_inference": true
+}
