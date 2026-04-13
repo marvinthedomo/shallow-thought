@@ -162,8 +162,8 @@ This directory is **global** (not per-workspace). Agent scoping is handled by th
 | `tags_require` | string[] | `[]` | Chunks must have ALL these tags |
 | `tags_exclude` | string[] | `[]` | Chunks must not have ANY of these tags |
 | `score_thresholds` | object | `{ default: 0.5 }` | Per-`source_type` score cutoffs. Falls back to `default` if type not listed. |
-| `keyword_map` | object | `{}` | Maps location names to keyword arrays. Defined in profile — no hardcoded keywords in code. |
-| `context_inference` | bool | `true` | Enable/disable keyword-based context inference for this agent |
+| `keyword_map` | object | `{}` | Maps location names → keyword arrays. Defined in profile JSON — no hardcoded keywords in code. Adding new locations or aliases requires only a profile edit, no code change. |
+| `context_inference` | bool | `true` | Enable/disable keyword-based location inference for this agent. Set `false` for agents that don't need location scoping (e.g. Eddie). |
 
 **Hot-reload:** Plugin uses `fs.watchFile` on each profile path. Changes take effect within 1s, no restart required.
 
