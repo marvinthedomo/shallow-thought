@@ -1,5 +1,5 @@
 import * as fs from "node:fs";
-import { readFile } from "node:fs/promises";
+import * as fsp from "node:fs/promises";
 import { join } from "node:path";
 import {
   mergeProfileWithDefaults,
@@ -33,7 +33,7 @@ export async function loadProfile(
   // Check if file exists and get its mtime
   let mtime: number;
   try {
-    const stat = fs.statSync(filePath);
+    const stat = await fsp.stat(filePath);
     mtime = stat.mtimeMs;
   } catch (err: unknown) {
     const isNotFound =
@@ -56,7 +56,7 @@ export async function loadProfile(
   // Cache miss or stale — read and parse
   let raw: string;
   try {
-    raw = await readFile(filePath, "utf-8");
+    raw = await fsp.readFile(filePath, "utf-8");
   } catch (err: unknown) {
     console.warn(`[shallow-thought] Could not read profile for ${agentId}:`, err);
     return mergeProfileWithDefaults({}, gatewayDefaults);
@@ -90,27 +90,6 @@ export async function loadProfile(
   // Store in cache
   profileCache.set(filePath, { profile, mtime });
   return profile;
-}
-
-// ---------------------------------------------------------------------------
-// watchProfile — hot-reload via fs.watchFile
-// ---------------------------------------------------------------------------
-
-export function watchProfile(
-  agentId: string,
-  config: Pick<PluginConfig, "profile_dir">,
-  onReload?: () => void
-): () => void {
-  const filePath = join(expandTilde(config.profile_dir), `${agentId}.json`);
-
-  fs.watchFile(filePath, { interval: 1000 }, (curr, prev) => {
-    if (curr.mtimeMs !== prev.mtimeMs) {
-      profileCache.delete(filePath);
-      onReload?.();
-    }
-  });
-
-  return () => fs.unwatchFile(filePath);
 }
 
 // ---------------------------------------------------------------------------

@@ -5,7 +5,6 @@
 
 import { definePluginEntry } from "openclaw/plugin-sdk/plugin-entry";
 
-import { expandTilde } from "./src/config.js";
 import type { PluginConfig } from "./src/config.js";
 import { EmbedError, embedText, wordCount } from "./src/embed.js";
 import { loadProfile, inferLocationFilter } from "./src/scope.js";
@@ -258,9 +257,8 @@ export default definePluginEntry({
     // ------------------------------------------------------------------
     // gateway_stop — cleanup hook
     // ------------------------------------------------------------------
-    api.registerHook("gateway_stop", () => {
-      // hook name: rag-cleanup
+    api.on("gateway_stop", () => {
       api.logger.debug("[shallow-thought] shutting down");
-    }, { name: "rag-cleanup" });
+    });
   },
 });
