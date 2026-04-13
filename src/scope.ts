@@ -1,17 +1,18 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
-  DEFAULT_PROFILE,
   mergeProfileWithDefaults,
   validateProfileSchema,
 } from "./config.js";
-import type { AgentProfile, PluginConfig } from "./config.js";
+import type { AgentProfile, PluginConfig, PluginConfigDefaults } from "./config.js";
 
 export async function loadProfile(
   agentId: string,
   config: Pick<PluginConfig, "profile_dir" | "defaults">
 ): Promise<AgentProfile> {
   const filePath = join(config.profile_dir, `${agentId}.json`);
+  // Gateway config defaults take precedence over hardcoded DEFAULT_PROFILE
+  const gatewayDefaults: Partial<PluginConfigDefaults> = config.defaults;
 
   let raw: string;
   try {
@@ -24,7 +25,7 @@ export async function loadProfile(
     if (!isNotFound) {
       console.warn(`[shallow-thought] Could not read profile for ${agentId}:`, err);
     }
-    return mergeProfileWithDefaults({});
+    return mergeProfileWithDefaults({}, gatewayDefaults);
   }
 
   let parsed: unknown;
@@ -32,23 +33,23 @@ export async function loadProfile(
     parsed = JSON.parse(raw);
   } catch (err: unknown) {
     console.warn(`[shallow-thought] Invalid JSON in profile for ${agentId}:`, err);
-    return mergeProfileWithDefaults({});
+    return mergeProfileWithDefaults({}, gatewayDefaults);
   }
 
   if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) {
     console.warn(`[shallow-thought] Profile for ${agentId} is not an object, using defaults`);
-    return mergeProfileWithDefaults({});
+    return mergeProfileWithDefaults({}, gatewayDefaults);
   }
 
   const partial = parsed as Partial<AgentProfile>;
 
   try {
-    const merged = mergeProfileWithDefaults(partial);
+    const merged = mergeProfileWithDefaults(partial, gatewayDefaults);
     validateProfileSchema(merged);
     return merged;
   } catch (err: unknown) {
     console.warn(`[shallow-thought] Profile schema validation failed for ${agentId}:`, err);
-    return mergeProfileWithDefaults({});
+    return mergeProfileWithDefaults({}, gatewayDefaults);
   }
 }
 

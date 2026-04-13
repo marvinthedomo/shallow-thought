@@ -36,7 +36,21 @@ function buildConfig(raw: Record<string, unknown>): PluginConfig {
       context_inference: true,
     },
   };
-  return { ...defaults, ...(raw as Partial<PluginConfig>) } as PluginConfig;
+  const r = raw as Partial<PluginConfig>;
+  return {
+    ...defaults,
+    ...r,
+    // Nested merge: don't let raw.defaults replace the entire defaults object
+    defaults: {
+      ...defaults.defaults,
+      ...(r.defaults ?? {}),
+      // score_thresholds also needs deep merge
+      score_thresholds: {
+        ...defaults.defaults.score_thresholds,
+        ...(r.defaults?.score_thresholds ?? {}),
+      },
+    },
+  };
 }
 
 // ---------------------------------------------------------------------------

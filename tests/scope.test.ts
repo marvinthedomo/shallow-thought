@@ -45,6 +45,31 @@ describe("loadProfile", () => {
     expect(profile).toEqual(DEFAULT_PROFILE);
   });
 
+  it("uses gateway config defaults when no profile file exists", async () => {
+    const config = {
+      ...BASE_CONFIG,
+      profile_dir: tmpDir,
+      defaults: { ...BASE_CONFIG.defaults, top_k: 8, max_tokens: 3000 },
+    };
+    const profile = await loadProfile("unknown-agent", config);
+    expect(profile.top_k).toBe(8);
+    expect(profile.max_tokens).toBe(3000);
+    // Fields not in defaults stay at DEFAULT_PROFILE values
+    expect(profile.enabled).toBe(true);
+  });
+
+  it("profile file fields override gateway defaults", async () => {
+    const config = {
+      ...BASE_CONFIG,
+      profile_dir: tmpDir,
+      defaults: { ...BASE_CONFIG.defaults, top_k: 8 },
+    };
+    fs.writeFileSync(path.join(tmpDir, "marvin.json"), JSON.stringify({ top_k: 12 }));
+    const profile = await loadProfile("marvin", config);
+    // Profile file wins over gateway default
+    expect(profile.top_k).toBe(12);
+  });
+
   it("loads and merges a partial profile from disk", async () => {
     const config = { ...BASE_CONFIG, profile_dir: tmpDir };
     const partial = { top_k: 8, enabled: false };

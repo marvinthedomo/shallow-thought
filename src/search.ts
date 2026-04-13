@@ -1,4 +1,4 @@
-import { AgentProfile, PluginConfig } from "./config";
+import type { AgentProfile, PluginConfig } from "./config.js";
 
 /**
  * Qdrant payload structure for indexed knowledge items

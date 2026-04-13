@@ -1,4 +1,4 @@
-import type { PluginConfig } from "../src/config.js";
+import type { PluginConfig } from "./config.js";
 
 export class EmbedError extends Error {
   constructor(message: string, public readonly cause?: unknown) {

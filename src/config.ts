@@ -61,40 +61,60 @@ export const DEFAULT_PROFILE: AgentProfile = {
   context_inference: true,
 };
 
+/**
+ * Merge a partial profile over DEFAULT_PROFILE, with optional gateway-level defaults
+ * (from openclaw.json plugins.entries.shallow-thought.config.defaults) layered in between.
+ *
+ * Priority (highest to lowest):
+ *   1. Per-agent profile file fields
+ *   2. Gateway config defaults (config.defaults in openclaw.json)
+ *   3. Hardcoded DEFAULT_PROFILE
+ */
 export function mergeProfileWithDefaults(
-  partial: Partial<AgentProfile>
+  partial: Partial<AgentProfile>,
+  gatewayDefaults?: Partial<PluginConfigDefaults>
 ): AgentProfile {
+  // Build the effective base: DEFAULT_PROFILE overridden by gateway defaults
+  const base: AgentProfile = {
+    ...DEFAULT_PROFILE,
+    ...(gatewayDefaults !== undefined
+      ? {
+          top_k: gatewayDefaults.top_k ?? DEFAULT_PROFILE.top_k,
+          max_tokens: gatewayDefaults.max_tokens ?? DEFAULT_PROFILE.max_tokens,
+          min_embed_tokens: gatewayDefaults.min_embed_tokens ?? DEFAULT_PROFILE.min_embed_tokens,
+          context_inference: gatewayDefaults.context_inference ?? DEFAULT_PROFILE.context_inference,
+          score_thresholds: {
+            ...DEFAULT_PROFILE.score_thresholds,
+            ...(gatewayDefaults.score_thresholds ?? {}),
+          },
+        }
+      : {}),
+  };
+
   return {
-    enabled: partial.enabled !== undefined ? partial.enabled : DEFAULT_PROFILE.enabled,
-    top_k: partial.top_k !== undefined ? partial.top_k : DEFAULT_PROFILE.top_k,
-    max_tokens:
-      partial.max_tokens !== undefined ? partial.max_tokens : DEFAULT_PROFILE.max_tokens,
+    enabled: partial.enabled !== undefined ? partial.enabled : base.enabled,
+    top_k: partial.top_k !== undefined ? partial.top_k : base.top_k,
+    max_tokens: partial.max_tokens !== undefined ? partial.max_tokens : base.max_tokens,
     min_embed_tokens:
-      partial.min_embed_tokens !== undefined
-        ? partial.min_embed_tokens
-        : DEFAULT_PROFILE.min_embed_tokens,
+      partial.min_embed_tokens !== undefined ? partial.min_embed_tokens : base.min_embed_tokens,
     include_types:
-      partial.include_types !== undefined ? partial.include_types : DEFAULT_PROFILE.include_types,
+      partial.include_types !== undefined ? partial.include_types : base.include_types,
     exclude_types:
-      partial.exclude_types !== undefined ? partial.exclude_types : DEFAULT_PROFILE.exclude_types,
-    locations: partial.locations !== undefined ? partial.locations : DEFAULT_PROFILE.locations,
-    agent_ids: partial.agent_ids !== undefined ? partial.agent_ids : DEFAULT_PROFILE.agent_ids,
-    tags_require:
-      partial.tags_require !== undefined ? partial.tags_require : DEFAULT_PROFILE.tags_require,
-    tags_exclude:
-      partial.tags_exclude !== undefined ? partial.tags_exclude : DEFAULT_PROFILE.tags_exclude,
+      partial.exclude_types !== undefined ? partial.exclude_types : base.exclude_types,
+    locations: partial.locations !== undefined ? partial.locations : base.locations,
+    agent_ids: partial.agent_ids !== undefined ? partial.agent_ids : base.agent_ids,
+    tags_require: partial.tags_require !== undefined ? partial.tags_require : base.tags_require,
+    tags_exclude: partial.tags_exclude !== undefined ? partial.tags_exclude : base.tags_exclude,
     score_thresholds: {
-      ...DEFAULT_PROFILE.score_thresholds,
-      ...(partial.score_thresholds || {}),
+      ...base.score_thresholds,
+      ...(partial.score_thresholds ?? {}),
     },
     keyword_map: {
-      ...DEFAULT_PROFILE.keyword_map,
-      ...(partial.keyword_map || {}),
+      ...base.keyword_map,
+      ...(partial.keyword_map ?? {}),
     },
     context_inference:
-      partial.context_inference !== undefined
-        ? partial.context_inference
-        : DEFAULT_PROFILE.context_inference,
+      partial.context_inference !== undefined ? partial.context_inference : base.context_inference,
   };
 }
 
