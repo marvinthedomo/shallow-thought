@@ -16,6 +16,7 @@
       "context_block_header":  { "type": "string" },
       "fail_open":             { "type": "boolean" },
       "debug_log":             { "type": "boolean" },
+      "search_multiplier":     { "type": "integer", "minimum": 1, "maximum": 20 },
       "defaults": {
         "type": "object",
         "additionalProperties": false,
